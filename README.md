@@ -16,7 +16,7 @@ The previous `voicekit` branch contains code just for the Voice Kit, and the
 `master` branch contains the original deprecated `Voice Recognizer` demo.
 
 ## Support
-
+SeoyoungKo
 If you're having trouble assembling your kit or running the demos, you can try
 
 * [AIY Forums][aiy-forums]
