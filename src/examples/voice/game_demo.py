@@ -18,7 +18,8 @@ import argparse
 import locale
 import logging
 
-from aiy.board import Board, Led
+from aiy.board import Board
+from aiy.leds import (Leds, Pattern, PrivacyLed, RgbLeds, Color)
 from aiy.cloudspeech import CloudSpeechClient
 import aiy.voice.tts
 
@@ -30,7 +31,12 @@ def get_hints(language_code):
                 'turn off the light',
                 'blink the light',
                 'goodbye')
-    return None
+    else:
+        return ('구구단',
+                '더하기',
+                '업다운',
+                '아재개그',
+                '잘가',)
 
 def locale_language():
     language, _ = locale.getdefaultlocale()
@@ -47,30 +53,34 @@ def main():
     hints = get_hints(args.language)
     client = CloudSpeechClient()
     with Board() as board:
-        while True:
-            if hints:
-                logging.info('Say something, e.g. %s.' % ', '.join(hints))
-            else:
-                logging.info('Say something.')
-            text = client.recognize(language_code=args.language,
-                                    hint_phrases=hints)
-            if text is None:
-                logging.info('You said nothing.')
-                continue
+        with Leds() as leds:
+            while True:
+                if hints:
+                    logging.info('Say something, e.g. %s.' % ', '.join(hints))
+                else:
+                    logging.info('Say something.')
+                text = client.recognize(language_code=args.language,
+                                        hint_phrases=hints)
+                if text is None:
+                    logging.info('You said nothing.')
+                    continue
 
-            logging.info('You said: "%s"' % text)
-            text = text.lower()
-            if '구구단' in text:
-                board.led.state = Led.ON
-                aiy.voice.tts.say("Start gugudan")
-            elif '더하기' in text:
-                board.led.state = Led.OFF
-                aiy.voice.tts.say("Start deohagi")
-            elif '업다운' in text:
-                board.led.state = Led.BLINK
-                aiy.voice.tts.say("Start updown")
-            elif '잘가' in text:
-                break
+                logging.info('You said: "%s"' % text)
+                text = text.lower()
+                if '구구단' in text:
+                    leds.update(Leds.rgb_on(Color.WHITE))
+                    aiy.voice.tts.say('구구단을 시작합니다')
+                elif '더하기' in text:
+                    leds.update(Leds.rgb_on(Color.WHITE))
+                    aiy.voice.tts.say('더하기 게임을 시작합니다')
+                elif '업다운' in text:
+                    leds.update(Leds.rgb_on(Color.WHITE))
+                    aiy.voice.tts.say('업다운 게임을 시작합니다')
+                elif '아재개그' in text:
+                    leds.update(Leds.rgb_on(Color.WHITE))
+                    aiy.voice.tts.say('아재개그 들려드릴게요')
+                elif '잘가' in text:
+                    break
 
 if __name__ == '__main__':
     main()
